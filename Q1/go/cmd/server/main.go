@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"log"
@@ -43,7 +43,7 @@ func (s *Server) Run() {
 
 // Métodos para os comandos...
 
-// hash (ver se tem SHA512 no go)
+// hash (ver se tem SHA512 no go); o servidor fica com a senha? ou só o hash da senha?
 
 // definir users (duda e carol)
 

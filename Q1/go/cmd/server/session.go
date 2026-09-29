@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"bufio"
@@ -56,7 +56,7 @@ func (s *Session) HandleCommand(command string) bool {
 	switch cmd {
 
 	case "CONNECT":
-		s.Connect()
+		s.Connect(tokens[1], tokens[2])
 
 		return true
 
