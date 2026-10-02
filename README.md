@@ -37,7 +37,7 @@ Esta aplicação implementa um servidor de arquivos remoto multiusuário utiliza
 - `$N$ bytes`: Filename (0 a 255 bytes)
 
 #### Campos adicionais de carga útil (Payload)
-- **ADDFILE**: `4 bytes` (Tamanho do Arquivo em Big Endian) + `1 a 2^32 bytes` (Dados do arquivo).
+- **ADDFILE**: `4 bytes` (Tamanho do arquivo em Big Endian) + `1 a 2^32 bytes` (Dados do arquivo).
 
 ### 3. Formato da resposta (Servidor -> Cliente)
 - `1 byte`: Message Type (`0x02`)
@@ -50,7 +50,6 @@ Esta aplicação implementa um servidor de arquivos remoto multiusuário utiliza
 
 ### 4. Requisitos de implementação
 - **Endianness**: Todos os inteiros de múltiplos bytes devem ser serializados/deserializados em **Big Endian**.
-- **Download**: Os downloads efetuados pelo cliente são salvos automaticamente na pasta `Downloads/`.
 - **Streaming**: Envio e recebimento de dados realizados byte a byte.
 - **Logging**: O servidor registra eventos e erros usando bibliotecas nativas/padrão da linguagem.
 
