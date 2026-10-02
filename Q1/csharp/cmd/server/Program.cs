@@ -24,7 +24,7 @@ class Server
         TcpListener server = new(IPAddress.Any, 5000);
         server.Start(); // começa a escutar conexões TCP na porta
         Log.Information("Servidor iniciado na porta 5000");
-        AuthenticationManager authenticationManager = new AuthenticationManager();
+        AuthenticationManager authenticationManager = new();
 
         while (true)
         {

@@ -18,7 +18,7 @@ class Client
         try
         {
             Log.Information("Conectando ao servidor...");
-            using TcpClient client = new TcpClient();
+            using TcpClient client = new();
             client.Connect("127.0.0.1", 5000);
             Log.Information("Conectado ao servidor");
             NetworkStream stream = client.GetStream();
