@@ -61,31 +61,35 @@ Esta aplicação implementa um servidor de arquivos remoto multiusuário utiliza
     ├── .gitignore
     │
     ├── Q1/                            # Questão 1: Protocolo de Texto (UTF-8)
-    │   ├── README.md
     │   ├── c#/
+    │   │   ├── README.md
     │   │   └── cmd/
     │   │       ├── client/            # Código do cliente em C#
-    │   │       └── server/            # Código do servidor em C# 
+    │   │       └── server/            # Código do servidor em C#
     │   ├── go/
+    │   │   ├── README.md
     │   │   └── cmd/
     │   │       ├── client/            # Código do cliente em Go
     │   │       └── server/            # Código do servidor em Go
     │   └── java/
+    │       ├── README.md
     │       └── cmd/
     │           ├── client/            # Código do cliente em Java
     │           └── server/            # Código do servidor em Java
     │
-    └── Q2/                            # Questão 2: Protocolo binário TCP
-        ├── README.md
+    └── Q2/                            # Questão 2: Protocolo Binário TCP
         ├── c#/
+        │   ├── README.md
         │   └── cmd/
-        │       ├── client/            # Cliente em C#
-        │       └── server/            # Servidor em C# 
+        │       ├── client/            # Código do cliente em C#
+        │       └── server/            # Código do servidor em C#
         ├── go/
+        │   ├── README.md
         │   └── cmd/
-        │       ├── client/            # Cliente em Go
-        │       └── server/            # Servidor em Go
+        │       ├── client/            # Código do cliente em Go
+        │       └── server/            # Código do servidor em Go
         └── java/
+            ├── README.md
             └── cmd/
-                ├── client/            # Cliente em Java
-                └── server/            # Servidor em Java
+                ├── client/            # Código do cliente em Java
+                └── server/            # Código do servidor em Java

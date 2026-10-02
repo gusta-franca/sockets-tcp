@@ -25,60 +25,60 @@ class Client
             Log.Information("Conectado ao servidor");
             NetworkStream stream = client.GetStream();
             Protocol protocol = new(stream);
-            while (true)
+            try
             {
-                Console.Write("Digite o comando desejado: ");
-                string command = Console.ReadLine()!;
-                if (command.ToUpper() == "EXIT")
+                while (true)
                 {
-                    break;
-                }
-                Request request = new()
-                {
-                    MessageType = MessageType.Request
-                };
-                if (Enum.TryParse(command, true, out Command commandEnum))
-                {
-                    request.CommandIdentifier = commandEnum;
-                    Log.Information("Comando válido: {commandEnum}", commandEnum);
-                    string fileNameString = "";
-                    if (commandEnum == Command.GETFILESLIST)
+                    Console.Write("Digite o comando desejado: ");
+                    string command = Console.ReadLine()!;
+                    if (command.ToUpper() == "EXIT")
                     {
-                        request.FileNameSize = 0;
-                        request.FileName = new byte[1];
+                        break;
                     }
-                    while (true && commandEnum != Command.GETFILESLIST)
+                    Request request = new()
                     {
-                        Console.Write("Digite o nome do arquivo: ");
-                        fileNameString = Console.ReadLine()!;
-                        byte[] fileNameByte = Encoding.UTF8.GetBytes(fileNameString);
-                        if (fileNameByte.Length <= byte.MaxValue)
+                        MessageType = MessageType.Request
+                    };
+                    if (Enum.TryParse(command, true, out Command commandEnum))
+                    {
+                        request.CommandIdentifier = commandEnum;
+                        Log.Information("Comando válido: {commandEnum}", commandEnum);
+                        string fileNameString = "";
+                        if (commandEnum == Command.GETFILESLIST)
                         {
-                            request.FileNameSize = (byte)fileNameByte.Length;
-                            request.FileName = fileNameByte;
-                            break;
+                            request.FileNameSize = 0;
+                            request.FileName = new byte[1];
                         }
-                        Log.Information("O nome do arquivo ultrapassa o limite de 255 bytes");
-                    }
-                    switch (commandEnum)
-                    {
-                        case Command.ADDFILE:
-                            string filePath = Path.Combine(rootDir, fileNameString);
-                            if (File.Exists(filePath))
+                        while (true && commandEnum != Command.GETFILESLIST)
+                        {
+                            Console.Write("Digite o nome do arquivo: ");
+                            fileNameString = Console.ReadLine()!;
+                            byte[] fileNameByte = Encoding.UTF8.GetBytes(fileNameString);
+                            if (fileNameByte.Length <= byte.MaxValue)
                             {
-                                request.File = File.ReadAllBytes(filePath);
-                                request.FileSize = (uint)request.File.Length;
-                            }
-                            else
-                            {
-                                Log.Information("O arquivo informado não existe e não pode ser enviado ao servidor");
+                                request.FileNameSize = (byte)fileNameByte.Length;
+                                request.FileName = fileNameByte;
                                 break;
                             }
-                            try
-                            {
+                            Log.Information("O nome do arquivo ultrapassa o limite de 255 bytes");
+                        }
+                        switch (commandEnum)
+                        {
+                            case Command.ADDFILE:
+                                string filePath = Path.Combine(rootDir, fileNameString);
+                                if (File.Exists(filePath))
+                                {
+                                    request.File = File.ReadAllBytes(filePath);
+                                    request.FileSize = (uint)request.File.Length;
+                                }
+                                else
+                                {
+                                    Log.Information("O arquivo informado não existe e não pode ser enviado ao servidor");
+                                    break;
+                                }
                                 protocol.SendRequest(request);
-                                Answer answer = protocol.ReadAnswer();
-                                if (answer.StatusCode == StatusCode.SUCCESS)
+                                Answer answerAdd = protocol.ReadAnswer();
+                                if (answerAdd.StatusCode == StatusCode.SUCCESS)
                                 {
                                     Log.Information("Arquivo enviado com sucesso!");
                                 }
@@ -86,19 +86,11 @@ class Client
                                 {
                                     Log.Information("Não foi possível enviar o arquivo");
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Error(ex, "Erro ao tentar enviar o arquivo");
-                                throw;
-                            }
-                            break;
-                        case Command.DELETE:
-                            try
-                            {
+                                break;
+                            case Command.DELETE:
                                 protocol.SendRequest(request);
-                                Answer answer = protocol.ReadAnswer();
-                                if (answer.StatusCode == StatusCode.SUCCESS)
+                                Answer answerDelete = protocol.ReadAnswer();
+                                if (answerDelete.StatusCode == StatusCode.SUCCESS)
                                 {
                                     Log.Information("Arquivo deletado com sucesso!");
                                 }
@@ -106,31 +98,23 @@ class Client
                                 {
                                     Log.Information("Não foi possível deletar o arquivo");
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Error(ex, "Erro ao tentar deletar o arquivo");
-                                throw;
-                            }
-                            break;
-                        case Command.GETFILE:
-                            try
-                            {
+                                break;
+                            case Command.GETFILE:
                                 protocol.SendRequest(request);
-                                Answer answer = protocol.ReadAnswer();
-                                if (answer.StatusCode == StatusCode.SUCCESS)
+                                Answer answerGetFile = protocol.ReadAnswer();
+                                if (answerGetFile.StatusCode == StatusCode.SUCCESS)
                                 {
-                                    if (answer.FileSize == null || answer.FileSize == 0)
+                                    if (answerGetFile.FileSize == null || answerGetFile.FileSize == 0)
                                     {
                                         Log.Information("O tamanho do arquivo enviado é nulo ou igual a 0");
                                         break;
                                     }
-                                    if (answer.File == null || answer.File.Length == 0)
+                                    if (answerGetFile.File == null || answerGetFile.File.Length == 0)
                                     {
                                         Log.Information("O campo do arquivo veio vazio");
                                     }
-                                    byte[] file = answer.File!;
-                                    uint fileSize = answer.FileSize.Value;
+                                    byte[] file = answerGetFile.File!;
+                                    uint fileSize = answerGetFile.FileSize.Value;
                                     if (file.Length != fileSize)
                                     {
                                         Log.Information(
@@ -152,29 +136,21 @@ class Client
                                 {
                                     Log.Information("Não foi possível baixar o arquivo");
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Error(ex, "Erro ao tentar baixar o arquivo");
-                                throw;
-                            }
-                            break;
-                        case Command.GETFILESLIST:
-                            try
-                            {
+                                break;
+                            case Command.GETFILESLIST:
                                 protocol.SendRequest(request);
-                                Answer answer = protocol.ReadAnswer();
-                                if (answer.StatusCode == StatusCode.SUCCESS)
+                                Answer answerList = protocol.ReadAnswer();
+                                if (answerList.StatusCode == StatusCode.SUCCESS)
                                 {
-                                    if (answer.FileNames == null || answer.FileNames.Length == 0)
+                                    if (answerList.FileNames == null || answerList.FileNames.Length == 0)
                                     {
                                         Log.Information("A lista de arquivos veio vazia");
                                         break;
                                     }
-                                    string[] fileNames = answer.FileNames;
+                                    string[] fileNames = answerList.FileNames;
                                     Log.Information("Lista de arquivos obtida com sucesso!");
                                     Log.Information("Arquivos disponíveis:");
-                                    foreach (string fileName in answer.FileNames)
+                                    foreach (string fileName in answerList.FileNames)
                                     {
                                         Log.Information("- {FileName}", fileName);
                                     }
@@ -183,21 +159,26 @@ class Client
                                 {
                                     Log.Information("Não foi possível obter a lista de arquivos");
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Error(ex, "Erro ao tentar obter a lista de arquivos");
-                                throw;
-                            }
-                            break;
-                        default:
-                            break;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Log.Information("Comando inválido!");
                     }
                 }
-                else
-                {
-                    Log.Information("Comando inválido!");
-                }
+
+            }
+            catch (EndOfStreamException)
+            {
+
+                Log.Error("O servidor foi desconectado.");
+            }
+            catch (IOException ex)
+            {
+                Log.Error(ex, "Erro de comunicação com o servidor.");
             }
         }
         catch (Exception ex)
