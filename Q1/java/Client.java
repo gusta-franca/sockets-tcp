@@ -49,7 +49,7 @@ public class Client {
                     
                     String hash = Hash.sha512(password);
 
-                    connection.send("CONNECT" + values[0] + ", " + hash);
+                    connection.send("CONNECT " + userName + ", " + hash);
                     System.out.println("Servidor: " + connection.receive());
                 
                 } else if (command.equals("EXIT")) {
@@ -64,7 +64,7 @@ public class Client {
                         System.out.println("Server disse: ERROR.");
                     } else {
                         int count = Integer.parseInt(response);
-                        System.out.print("Quantidade: " + count);
+                        System.out.println("Quantidade: " + count);
 
                         for (int i = 0; i < count; i++){
                             System.out.println(" - " + connection.receive());
