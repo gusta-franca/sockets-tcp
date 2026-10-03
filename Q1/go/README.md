@@ -42,7 +42,6 @@ make run-client
 | `CHDIR <caminho>` | Altera o diretório atual |
 | `GETFILES` | Lista os arquivos |
 | `GETDIRS` | Lista os diretórios |
-| `HELP` | Mostra os comandos disponíveis |
 | `EXIT` | Encerra a conexão |
 
 ## Protocolo

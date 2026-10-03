@@ -26,13 +26,16 @@ func NewUtf8Protocol(conn net.Conn) *Utf8Protocol {
 // Reads a big-endian header with 4 bytes, then reads the bytes informed in the header
 func (p *Utf8Protocol) ReadString() (string, error) {
 	header := make([]byte, 4)
+
+	// reads header
 	if _, err := io.ReadFull(p.conn, header); err != nil {
 		return "", err
 	}
 
 	length := binary.BigEndian.Uint32(header)
-
 	data := make([]byte, length)
+
+	// reads data
 	if _, err := io.ReadFull(p.conn, data); err != nil {
 		return "", err
 	}
@@ -46,11 +49,15 @@ func (p *Utf8Protocol) WriteString(message string) error {
 	length := uint32(len(data))
 
 	header := make([]byte, 4)
+
 	binary.BigEndian.PutUint32(header, length)
 
+	// writes header
 	if _, err := p.conn.Write(header); err != nil {
 		return err
 	}
+
+	// writes data
 	_, err := p.conn.Write(data)
 	return err
 }
