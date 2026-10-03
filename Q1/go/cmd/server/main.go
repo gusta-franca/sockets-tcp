@@ -1,3 +1,9 @@
+/*
+   Data de criação: 27/09/2026
+   Estudante: Gustavo Martins França
+   Definição do servidor
+*/
+
 package main
 
 import (
@@ -15,14 +21,13 @@ var auth_users = map[string]string{
 	"duda":  auth.HashSHA512("duda123"),
 }
 
-// classe Server
 type Server struct {
 	addr     string
 	baseDir  string
 	listener net.Listener
 }
 
-// "construtor" do Server
+// Server constructor
 func NewServer(addr string, baseDir string) *Server {
 	return &Server{
 		addr:    addr,
@@ -30,7 +35,7 @@ func NewServer(addr string, baseDir string) *Server {
 	}
 }
 
-// "run()" do Server (análogo em java); listen no addr e despachar goroutines para cada conexão nova
+// Listens to addr and creates goroutines to handle each session
 func (s *Server) Run() {
 	var err error
 	s.listener, err = net.Listen("tcp", s.addr)

@@ -1,19 +1,23 @@
+/*
+   Data de criação: 27/09/2026
+   Estudante: Gustavo Martins França
+   Definição de uma sessão entre o servidor e um usuário
+*/
+
 package main
 
 import (
-	"bufio"
-	"fmt"
 	"log"
 	"net"
 	"os"
 	"path/filepath"
-	"strconv"
+	"sd/sockets_tcp/internal/protocol"
 	"strings"
 )
 
 type Session struct {
 	conn    net.Conn
-	reader  *bufio.Reader
+	proto   *protocol.Utf8Protocol
 	auth    bool
 	user    string
 	baseDir string
@@ -21,25 +25,24 @@ type Session struct {
 	currDir string
 }
 
-// onde colocar o diretório? criar um em /temp/user para ser o padrão?
+// Session constructor
 func NewSession(conn net.Conn, userDir string) *Session {
 	return &Session{conn: conn,
-		reader:  bufio.NewReader(conn),
-		auth:    false,
+		proto: protocol.NewUtf8Protocol(conn), auth: false,
 		baseDir: userDir,
 	}
 }
 
-// HandleConnection; passa o comando para frente com a string padronizada
+// Standardizes the client's input string and calls the command handler
 func (s *Session) handleConnection() {
 	defer s.conn.Close()
 	log.Printf("Client connected: %s", s.conn.RemoteAddr())
 
 	for {
-		message, err := s.reader.ReadString('\n')
+		message, err := s.proto.ReadString()
 
 		if err != nil {
-			s.sendResponse("ERROR")
+			log.Printf("Connection finished: %s", s.conn.RemoteAddr())
 			return
 		}
 
@@ -56,13 +59,13 @@ func (s *Session) handleConnection() {
 	}
 }
 
-// HandleCommand; switch com casos == comandos na especificação
+// Handles each command appropriatly
 func (s *Session) HandleCommand(command string) bool {
 	tokens := strings.SplitN(command, " ", 2)
 	cmd := strings.ToUpper(tokens[0])
 	args := ""
 
-	// tokens é um vetor separado por vírgula, lembrar de remover vírgulas se necessário
+	// tokens is a comma separated vector, remember to split later
 	if len(tokens) > 1 {
 		args = strings.TrimSpace(tokens[1])
 	}
@@ -106,6 +109,7 @@ func (s *Session) HandleCommand(command string) bool {
 	return true
 }
 
+// Handles CONNECT user,password
 func (s *Session) Connect(args string) {
 	tokens := strings.Split(args, ",")
 
@@ -129,6 +133,7 @@ func (s *Session) Connect(args string) {
 	s.sendResponse("SUCCESS")
 }
 
+// Handles PWD
 func (s *Session) PrintWorkingDirectory() {
 	rel, err := filepath.Rel(s.rootDir, s.currDir)
 
@@ -140,6 +145,7 @@ func (s *Session) PrintWorkingDirectory() {
 	}
 }
 
+// Handles CHDIR
 func (s *Session) ChangeDirectory(dir string) {
 	if dir == "" {
 		s.sendResponse("ERROR")
@@ -147,6 +153,7 @@ func (s *Session) ChangeDirectory(dir string) {
 	}
 
 	if dir == "." {
+		s.sendResponse("SUCCESS")
 		return
 	}
 
@@ -160,7 +167,7 @@ func (s *Session) ChangeDirectory(dir string) {
 
 	target = filepath.Clean(target)
 
-	// rejects command if the required path doesn't begin with {user}/
+	// Rejects command if the required path doesn't begin with {user}/
 	if !strings.HasPrefix(target, s.rootDir) {
 		s.sendResponse("ERROR")
 		return
@@ -177,6 +184,7 @@ func (s *Session) ChangeDirectory(dir string) {
 	s.sendResponse("SUCCESS")
 }
 
+// Handles GETFILES
 func (s *Session) GetFiles() {
 	c, err := os.ReadDir(s.currDir)
 
@@ -192,19 +200,10 @@ func (s *Session) GetFiles() {
 		}
 	}
 
-	var response strings.Builder
-
-	response.WriteString(strconv.Itoa(len(files)))
-	response.WriteString("\n")
-
-	for _, f := range files {
-		response.WriteString(f)
-		response.WriteString("\n")
-	}
-
-	s.sendResponse(strings.TrimSuffix(response.String(), "\n"))
+	s.sendResponse(strings.Join(files, "\n"))
 }
 
+// Handles GETDIRS
 func (s *Session) GetDirs() {
 	c, err := os.ReadDir(s.currDir)
 
@@ -220,33 +219,26 @@ func (s *Session) GetDirs() {
 		}
 	}
 
-	var response strings.Builder
-
-	response.WriteString(strconv.Itoa(len(dirs)))
-	response.WriteString("\n")
-
-	for _, d := range dirs {
-		response.WriteString(d)
-		response.WriteString("\n")
-	}
-
-	s.sendResponse(strings.TrimSuffix(response.String(), "\n"))
+	s.sendResponse(strings.Join(dirs, "\n"))
 }
 
+// Formats and send a command's response to the client
 func (s *Session) sendResponse(response string) {
-	_, err := fmt.Fprintf(s.conn, "%s\n", strings.ToValidUTF8(response, ""))
+	err := s.proto.WriteString(strings.ToValidUTF8(response, ""))
 
 	if err != nil {
-		log.Printf("Error sending response")
+		log.Printf("Error sending response: %s", err)
 	}
 }
 
+// Validates if an user is authenticated
 func (s *Session) validateUser(user string, hash string) bool {
 	realHash, ok := auth_users[user] // ok means "exists"
 
 	return ok && strings.EqualFold(hash, realHash)
 }
 
+// Logs every executed command
 func (s *Session) serverLog(command string) {
 	log.Printf("%s executed %s\n", s.conn.RemoteAddr(), command)
 }

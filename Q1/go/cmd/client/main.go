@@ -1,3 +1,9 @@
+/*
+   Data de criação: 01/10/2026
+   Estudante: Gustavo Martins França
+   Definição do cliente
+*/
+
 package main
 
 import (
@@ -6,22 +12,22 @@ import (
 	"log"
 	"net"
 	"os"
-	"strconv"
 	"strings"
 
-	"github.com/joho/godotenv"
 	"sd/sockets_tcp/internal/auth"
+	"sd/sockets_tcp/internal/protocol"
+
+	"github.com/joho/godotenv"
 )
 
-// classe Client
 type Client struct {
-	addr           string
-	conn           net.Conn
-	inputReader    *bufio.Reader
-	responseReader *bufio.Reader
+	addr        string
+	conn        net.Conn
+	proto       *protocol.Utf8Protocol
+	inputReader *bufio.Reader
 }
 
-// construtor
+// Client constructor
 func NewClient(addr string) *Client {
 	return &Client{
 		addr: addr,
@@ -37,7 +43,7 @@ func (c *Client) Connect() error {
 	}
 
 	c.inputReader = bufio.NewReader(os.Stdin)
-	c.responseReader = bufio.NewReader(c.conn)
+	c.proto = protocol.NewUtf8Protocol(c.conn)
 
 	fmt.Printf("Connected on %s\n", c.addr)
 	return nil
@@ -70,7 +76,7 @@ func (c *Client) Run() {
 		}
 
 		if command == "EXIT" {
-			fmt.Fprintf(c.conn, "EXIT\n")
+			_ = c.proto.WriteString("EXIT")
 			fmt.Printf("Disconnected from %s\n", c.addr)
 			return
 		}
@@ -95,22 +101,26 @@ func (c *Client) Run() {
 			usr := strings.TrimSpace(argsTokens[0])
 			pwd := strings.TrimSpace(argsTokens[1])
 
-			cmd = fmt.Sprintf("CONNECT %s,%s\n", usr, auth.HashSHA512(pwd))
-
+			cmd = fmt.Sprintf("CONNECT %s,%s", usr, auth.HashSHA512(pwd))
 		} else if command == "CHDIR" {
 			if len(cmdTokens) < 2 {
 				fmt.Println("Usage: CHDIR directory")
 				continue
 			}
 
-			cmd = fmt.Sprintf("%s %s\n", command, strings.TrimSpace(cmdTokens[1]))
+			cmd = fmt.Sprintf("%s %s", command, strings.TrimSpace(cmdTokens[1]))
 		} else {
-			cmd = fmt.Sprintf("%s\n", command)
+			cmd = command
 		}
 
-		fmt.Fprintf(c.conn, "%s", cmd)
+		err = c.proto.WriteString(cmd)
 
-		response, err := c.responseReader.ReadString('\n')
+		if err != nil {
+			log.Printf("Error sending command: %s", err)
+			break
+		}
+
+		response, err := c.proto.ReadString()
 
 		if err != nil {
 			log.Printf("Error reading response: %s", err)
@@ -118,26 +128,8 @@ func (c *Client) Run() {
 			break
 		}
 
-		fmt.Print(response)
-
-		if command == "GETFILES" || command == "GETDIRS" {
-			count := strings.TrimSpace(response) // file/dir count
-
-			if count != "ERROR" {
-				itemCount, err := strconv.Atoi(count)
-
-				if err == nil {
-					for range itemCount {
-						line, err := c.responseReader.ReadString('\n')
-
-						if err != nil {
-							break
-						}
-
-						fmt.Print(line)
-					}
-				}
-			}
+		if response != "" {
+			fmt.Println(response)
 		}
 	}
 }
