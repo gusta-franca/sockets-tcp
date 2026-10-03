@@ -33,13 +33,13 @@ func (p *Protocol) WriteRequest(req *Request) error {
 		return fmt.Errorf("Filename size exceeds 255 bytes limit")
 	}
 
+	// write common request header
 	header := []byte{
 		byte(req.MessageType),
 		byte(req.CommandIdentifier),
 		byte(filenameSize),
 	}
 
-	// write common request header
 	if _, err := p.conn.Write(header); err != nil {
 		return err
 	}
@@ -65,6 +65,69 @@ func (p *Protocol) WriteRequest(req *Request) error {
 		}
 
 		if _, err := p.conn.Write(req.File); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Formats a response to the binary protocol and sends it to the client
+func (p *Protocol) WriteResponse(res *Response) error {
+	// write common request header
+	header := []byte{
+		byte(res.MessageType),
+		byte(res.CommandIdentifier),
+		byte(res.StatusCode),
+	}
+
+	if _, err := p.conn.Write(header); err != nil {
+		return err
+	}
+
+	// sends header only on error
+	if res.StatusCode == StatusError {
+		return nil
+	}
+
+	// write additional GETFILESLIST fields
+	if res.CommandIdentifier == CmdGetFilesList {
+		fileCount := make([]byte, 2)
+		filesLen := len(res.Files)
+		binary.BigEndian.PutUint16(fileCount, uint16(filesLen))
+
+		if _, err := p.conn.Write(fileCount); err != nil {
+			return err
+		}
+
+		filenameSize := make([]byte, 1)
+
+		for i := range filesLen {
+			filename := []byte(res.Files[i])
+			filenameLen := len(filename)
+			filenameSize[0] = byte(filenameLen)
+
+			if _, err := p.conn.Write(filenameSize); err != nil {
+				return err
+			}
+
+			if _, err := p.conn.Write(filename); err != nil {
+				return err
+			}
+		}
+	}
+
+	// write additional GETFILE fields
+	if res.CommandIdentifier == CmdGetFile {
+		fileSize := make([]byte, 4)
+		fileLen := len(res.File)
+		binary.BigEndian.PutUint32(fileSize, uint32(fileLen))
+
+		if _, err := p.conn.Write(fileSize); err != nil {
+			return err
+		}
+
+		if _, err := p.conn.Write(res.File); err != nil {
 			return err
 		}
 	}
