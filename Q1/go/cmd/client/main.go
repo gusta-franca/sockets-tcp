@@ -34,6 +34,7 @@ func NewClient(addr string) *Client {
 	}
 }
 
+// Connects a client to a server
 func (c *Client) Connect() error {
 	var err error
 	c.conn, err = net.Dial("tcp", c.addr)
@@ -49,7 +50,7 @@ func (c *Client) Connect() error {
 	return nil
 }
 
-// run()
+// Connects to addr and handles sending/receiving to/from the server
 func (c *Client) Run() {
 	err := c.Connect()
 
@@ -149,5 +150,4 @@ func main() {
 
 	client := NewClient(addr)
 	client.Run()
-
 }
