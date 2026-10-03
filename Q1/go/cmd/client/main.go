@@ -15,8 +15,8 @@ import (
 	"strconv"
 	"strings"
 
-	"sd/sockets_tcp/internal/auth"
-	"sd/sockets_tcp/internal/protocol"
+	"sockets_tcp/Q1/internal/auth"
+	"sockets_tcp/Q1/internal/protocol"
 
 	"github.com/joho/godotenv"
 )

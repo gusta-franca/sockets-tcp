@@ -11,7 +11,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"sd/sockets_tcp/internal/auth"
+	"sockets_tcp/Q1/internal/auth"
 
 	"github.com/joho/godotenv"
 )

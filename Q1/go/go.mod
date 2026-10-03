@@ -1,4 +1,4 @@
-module sd/sockets_tcp
+module sockets_tcp/Q1
 
 go 1.27.1
 

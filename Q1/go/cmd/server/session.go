@@ -11,7 +11,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"sd/sockets_tcp/internal/protocol"
+	"sockets_tcp/Q1/internal/protocol"
 	"strconv"
 	"strings"
 )
