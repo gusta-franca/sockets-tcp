@@ -1,100 +1,89 @@
-package server
+/*
+   Data de criação: 03/10/2026
+   Estudante: Gustavo Martins França
+   Definição do servidor
+*/
+
+package main
 
 import (
 	"log"
 	"net"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
-// classe Server
 type Server struct {
 	addr     string
 	listener net.Listener
+	baseDir  string
 }
 
-// "construtor" do Server
-func NewServer(addr string) *Server {
-	return &Server{addr: addr}
+// Server constructor
+func NewServer(addr string, baseDir string) *Server {
+	return &Server{
+		addr:    addr,
+		baseDir: baseDir,
+	}
 }
 
-// "run()" do Server (análogo em java); listen no addr e despachar goroutines para cada conexão nova
+// Listens to addr and creates goroutines to handle each session
 func (s *Server) Run() {
 	var err error
 	s.listener, err = net.Listen("tcp", s.addr)
 
 	if err != nil {
-		log.Fatal("Erro durante Listen: %v", err)
+		log.Fatalf("Error listening to %s", s.addr)
 	}
 
 	defer s.listener.Close()
 
-	// log.Printf("Servidor executando em %s...\n", s.addr)
+	err = os.MkdirAll("logs/", os.ModePerm)
+	logFile, err := os.OpenFile("logs/server.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+
+	if err != nil {
+		log.Fatalf("Could not open log file: %s", err)
+	}
+
+	defer logFile.Close()
+
+	log.SetOutput(logFile)
 
 	for {
 		conn, err := s.listener.Accept()
 
 		if err != nil {
-			log.Printf("Erro durante Accept: %v\n", err)
+			log.Println("Error accepting connection")
+			continue
 		}
 
-		session := NewSession(conn)
+		session := NewSession(conn, s.baseDir)
 		go session.handleConnection()
 	}
 }
 
-// Métodos para os comandos...
-
-// hash (ver se tem SHA512 no go); o servidor fica com a senha? ou só o hash da senha?
-
-// definir users (duda e carol)
-
 func main() {
-	const addr = "127.0.0.1:9090"
+	err := godotenv.Load()
 
-	// const addr = "127.0.0.1:9090"
+	if err != nil {
+		log.Fatal("Error loading enviroment")
+	}
 
-	// listener, err := net.Listen("tcp", addr)
+	addr := os.Getenv("SERVER_ADDR")
+	baseDir := os.Getenv("BASE_DIR")
 
-	// if err != nil {
-	// 	log.Fatal("Error listeing: ", err)
-	// }
+	if addr == "" || baseDir == "" {
+		log.Fatal("Provide a valid enviroment")
+	}
 
-	// defer listener.Close()
-	// // log.Println("Listening on ", addr)
+	err = os.MkdirAll(baseDir, os.ModePerm)
 
-	// for {
-	// 	conn, err := listener.Accept()
+	if err != nil {
+		log.Fatal("Error creating directory for clients")
 
-	// 	if err != nil {
-	// 		log.Println("Error accepting conn: ", err)
-	// 		continue
-	// 	}
+	}
 
-	// 	go handleConnection(conn)
-	// }
+	server := NewServer(addr, baseDir)
+	server.Run()
 }
-
-// func handleConnection(conn net.Conn) {
-// 	defer conn.Close()
-
-// 	reader := bufio.NewReader(conn)
-
-// 	for {
-// 		message, err := reader.ReadString('\n')
-
-// 		if err != nil {
-// 			log.Printf("Read error: %v", err)
-
-// 			return
-// 		}
-
-// 		fmt.Println(message)
-
-// 		ackMsg := strings.ToUpper(strings.TrimSpace(message))
-// 		response := fmt.Sprintf("ACK: %s\n", ackMsg)
-// 		_, err = conn.Write([]byte(response))
-
-// 		if err != nil {
-// 			log.Printf("Server write error: %v", err)
-// 		}
-// 	}
-// }

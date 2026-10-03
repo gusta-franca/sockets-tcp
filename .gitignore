@@ -1,5 +1,3 @@
-*.mod
-
 # .NET build
 **/bin/
 **/obj/
@@ -19,3 +17,11 @@
 
 # Logs
 *.log
+
+*.mod
+
+bin/
+downloads/
+logs/
+storage/
+users/
