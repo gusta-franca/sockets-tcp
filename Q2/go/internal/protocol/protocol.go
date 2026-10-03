@@ -24,6 +24,57 @@ func NewProtocol(conn net.Conn) *Protocol {
 	}
 }
 
+// Reads a protocol message and returns a Request struct with the appropriate fields
+func (p *Protocol) ReadRequest() (*Request, error) {
+	// read header
+	header := make([]byte, 3)
+
+	if _, err := io.ReadFull(p.conn, header); err != nil {
+		return nil, err
+	}
+
+	req := &Request{
+		MessageType:       Message(header[0]),
+		CommandIdentifier: Command(header[1]),
+	}
+
+	// read filename if filenameSize > 0
+	filenameSize := header[2]
+
+	if filenameSize > 0 {
+		filename := make([]byte, filenameSize)
+
+		if _, err := io.ReadFull(p.conn, filename); err != nil {
+			return nil, err
+		}
+
+		req.Filename = string(filename)
+	}
+
+	// read ADDFILE fields
+	if req.CommandIdentifier == CmdAddFile {
+		fileSize := make([]byte, 4)
+
+		if _, err := io.ReadFull(p.conn, fileSize); err != nil {
+			return nil, err
+		}
+
+		// needed because FileSize is a pointer, it's not possible to do *req.FileSize = binary.BigEndian.Uint32(fileSize)
+		s := binary.BigEndian.Uint32(fileSize)
+		req.FileSize = &s
+
+		file := make([]byte, s)
+
+		if _, err := io.ReadFull(p.conn, file); err != nil {
+			return nil, err
+		}
+
+		req.File = file
+	}
+
+	return req, nil
+}
+
 // Formats a request to the binary protocol and sends it to the server
 func (p *Protocol) WriteRequest(req *Request) error {
 	filename := []byte(req.Filename)
@@ -70,6 +121,79 @@ func (p *Protocol) WriteRequest(req *Request) error {
 	}
 
 	return nil
+}
+
+// Reads a protocol message and returns a Response struct with the appropriate fields
+func (p *Protocol) ReadResponse() (*Response, error) {
+	// read header
+	header := make([]byte, 3)
+
+	if _, err := io.ReadFull(p.conn, header); err != nil {
+		return nil, err
+	}
+
+	res := &Response{
+		MessageType:       Message(header[0]),
+		CommandIdentifier: Command(header[1]),
+		StatusCode:        Status(header[2]),
+	}
+
+	// returns header only on error
+	if res.StatusCode == StatusError {
+		return res, nil
+	}
+
+	// read GETFILESLIST fields
+	if res.CommandIdentifier == CmdGetFilesList {
+		fileCount := make([]byte, 2)
+
+		if _, err := io.ReadFull(p.conn, fileCount); err != nil {
+			return nil, err
+		}
+
+		filesLen := binary.BigEndian.Uint16(fileCount)
+		files := make([]string, filesLen)
+		filenameSize := make([]byte, 1)
+
+		for i := range filesLen {
+			if _, err := io.ReadFull(p.conn, filenameSize); err != nil {
+				return nil, err
+			}
+
+			filenameLen := int(filenameSize[0])
+			file := make([]byte, filenameLen)
+
+			if _, err := io.ReadFull(p.conn, file); err != nil {
+				return nil, err
+			}
+
+			files[i] = string(file)
+		}
+
+		res.Files = files
+	}
+
+	// read GETFILE fields
+	if res.CommandIdentifier == CmdGetFile {
+		fileSize := make([]byte, 4)
+
+		if _, err := io.ReadFull(p.conn, fileSize); err != nil {
+			return nil, err
+		}
+
+		s := binary.BigEndian.Uint32(fileSize)
+		res.FileSize = &s
+
+		file := make([]byte, s)
+
+		if _, err := io.ReadFull(p.conn, file); err != nil {
+			return nil, err
+		}
+
+		res.File = file
+	}
+
+	return res, nil
 }
 
 // Formats a response to the binary protocol and sends it to the client
@@ -133,55 +257,4 @@ func (p *Protocol) WriteResponse(res *Response) error {
 	}
 
 	return nil
-}
-
-// Reads a protocol message and returns a Request struct with the appropriate fields
-func (p *Protocol) ReadRequest() (*Request, error) {
-	header := make([]byte, 3)
-
-	// read header
-	if _, err := io.ReadFull(p.conn, header); err != nil {
-		return nil, err
-	}
-
-	req := &Request{
-		MessageType:       Message(header[0]),
-		CommandIdentifier: Command(header[1]),
-	}
-
-	// read filename if filenameSize > 0
-	filenameSize := header[2]
-
-	if filenameSize > 0 {
-		filename := make([]byte, filenameSize)
-
-		if _, err := io.ReadFull(p.conn, filename); err != nil {
-			return nil, err
-		}
-
-		req.Filename = string(filename)
-	}
-
-	// read ADDFILE fields
-	if req.CommandIdentifier == CmdAddFile {
-		fileSize := make([]byte, 4)
-
-		if _, err := io.ReadFull(p.conn, fileSize); err != nil {
-			return nil, err
-		}
-
-		// needed because FileSize is a pointer, it's not possible to do *req.FileSize = binary.BigEndian.Uint32(fileSize)
-		s := binary.BigEndian.Uint32(fileSize)
-		req.FileSize = &s
-
-		file := make([]byte, *req.FileSize)
-
-		if _, err := io.ReadFull(p.conn, file); err != nil {
-			return nil, err
-		}
-
-		req.File = file
-	}
-
-	return req, nil
 }
