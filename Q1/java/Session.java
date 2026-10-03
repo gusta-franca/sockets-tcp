@@ -30,7 +30,6 @@ public class Session {
 
         if (!auth && !cmd.equals("CONNECT") && !cmd.equals("EXIT")) {
             connection.send("ERROR");
-            System.out.println("Servidor: É necessário estabelecer conexão antes de utilizar um comando.");
             return true;
         }
 
@@ -54,7 +53,6 @@ public class Session {
                 return false;
             default:
                 connection.send("ERROR");
-                System.out.println("Servidor: Comando não encontrado.");
                 return true;
         }
     }
@@ -64,7 +62,6 @@ public class Session {
 
         if (values.length != 2) {
             connection.send("ERROR");
-            System.out.println("Servidor: Utilize o formato 'CONNECT <usuario> <senha>'");
             return;
         }
 
@@ -73,7 +70,6 @@ public class Session {
 
         if (userNameWithComma.endsWith(",") == false) {
             connection.send("ERROR");
-            System.out.println("Servidor: Utilize vírgula após o nome de usuário.");
             return;
         }
 
@@ -82,7 +78,6 @@ public class Session {
 
         if (!authenticator.authenticate(userName, passwordHash)) {
             connection.send("ERROR");
-            System.out.println("Servidor: Usuário ou senha inválidos.");
             return;
         }
 
@@ -104,7 +99,6 @@ public class Session {
 
         if (args.isEmpty()) {
             connection.send("ERROR");
-            System.out.println("Servidor: Utilize o formato 'CHDIR <diretório>'");
             return;
         }
 
@@ -112,12 +106,11 @@ public class Session {
 
         if (newCurrDir.startsWith(baseDir) == false) {
             connection.send("ERROR");
-            System.out.println("Diretórios válidos começam na raíz 'tmp'.");
             return;
         }
 
         if (Files.isDirectory(newCurrDir) == false) {
-            connection.send("ERROR: diretório inválido.");
+            connection.send("ERROR");
             return;
         }
 

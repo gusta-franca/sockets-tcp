@@ -9,9 +9,9 @@ public class Server {
             ServerSocket listenSocket = new ServerSocket(serverPort);
             Authenticator authenticator = new Authenticator();
 
-            while (true) {
-                System.out.println("Servidor aguardando conexão ...");
+            System.out.println("Servidor aguardando conexão ...");
 
+            while (true) {
                 Socket clientSocket = listenSocket.accept();
 
                 ClientThread clientThread = new ClientThread(clientSocket, authenticator);
