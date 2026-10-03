@@ -28,8 +28,10 @@ type Session struct {
 
 // Session constructor
 func NewSession(conn net.Conn, userDir string) *Session {
-	return &Session{conn: conn,
-		proto: protocol.NewUtf8Protocol(conn), auth: false,
+	return &Session{
+		conn:    conn,
+		proto:   protocol.NewUtf8Protocol(conn),
+		auth:    false,
 		baseDir: userDir,
 	}
 }
@@ -249,5 +251,5 @@ func (s *Session) validateUser(user string, hash string) bool {
 
 // Logs every executed command
 func (s *Session) serverLog(command string) {
-	log.Printf("%s executed %s\n", s.conn.RemoteAddr(), command)
+	log.Printf("user \"%s\" on %s executed %s\n", s.user, s.conn.RemoteAddr(), command)
 }
