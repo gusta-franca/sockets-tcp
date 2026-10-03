@@ -1,5 +1,7 @@
 bin/
+downloads/
 logs/
+storage/
 users/
 
 *.env
