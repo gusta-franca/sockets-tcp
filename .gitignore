@@ -3,5 +3,4 @@ logs/
 users/
 
 *.env
-*.mod
-*.sum
+*.log

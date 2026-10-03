@@ -12,6 +12,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 
 	"sd/sockets_tcp/internal/auth"
@@ -131,6 +132,23 @@ func (c *Client) Run() {
 
 		if response != "" {
 			fmt.Println(response)
+		}
+
+		if (command == "GETFILES" || command == "GETDIRS") && response != "ERROR" {
+			count := strings.TrimSpace(response)
+			itemCount, err := strconv.Atoi(count)
+
+			if err == nil {
+				for range itemCount {
+					item, err := c.proto.ReadString()
+
+					if err != nil {
+						log.Printf("Error reading item: %s", err)
+						break
+					}
+					fmt.Println(item)
+				}
+			}
 		}
 	}
 }

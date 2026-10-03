@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"sd/sockets_tcp/internal/protocol"
+	"strconv"
 	"strings"
 )
 
@@ -200,7 +201,11 @@ func (s *Session) GetFiles() {
 		}
 	}
 
-	s.sendResponse(strings.Join(files, "\n"))
+	s.sendResponse(strconv.Itoa(len(files)))
+
+	for _, f := range files {
+		s.sendResponse(f)
+	}
 }
 
 // Handles GETDIRS
@@ -219,7 +224,11 @@ func (s *Session) GetDirs() {
 		}
 	}
 
-	s.sendResponse(strings.Join(dirs, "\n"))
+	s.sendResponse(strconv.Itoa(len(dirs)))
+
+	for _, d := range dirs {
+		s.sendResponse(d)
+	}
 }
 
 // Formats and send a command's response to the client
