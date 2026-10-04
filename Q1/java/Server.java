@@ -1,0 +1,57 @@
+import java.io.*;
+import java.net.*;
+
+public class Server {
+
+    public static void main(String[] args) {
+        try {
+            int serverPort = 5000;
+            ServerSocket listenSocket = new ServerSocket(serverPort);
+            Authenticator authenticator = new Authenticator();
+
+            System.out.println("Servidor aguardando conexão ...");
+
+            while (true) {
+                Socket clientSocket = listenSocket.accept();
+
+                ClientThread clientThread = new ClientThread(clientSocket, authenticator);
+                clientThread.start();
+            }
+
+        } catch (IOException e) {
+            System.out.println("Listen socket:" + e.getMessage());
+        }
+    }
+}
+
+class ClientThread extends Thread {
+
+    private final Connection connection;
+    private final Session session;
+
+    public ClientThread(Socket clientSocket, Authenticator authenticator) throws IOException {
+        this.connection = new Connection(clientSocket);
+        this.session = new Session(connection, authenticator);
+    }
+
+    @Override
+    public void run() {
+        try (connection) {
+            while (true) {
+                String message = connection.receive();
+                String command = message.trim();
+                System.out.println("Cliente: " + command);
+
+                boolean keepRunning = session.commandHandler(command);
+                if (keepRunning == false) {
+                    break;
+                }
+            }
+        } catch (EOFException e) {
+            System.out.println("EOF: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("IOE: " + e.getMessage());
+        }
+        System.out.println("Thread comunicação cliente finalizada.");
+    }
+}
