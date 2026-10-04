@@ -42,7 +42,6 @@ class ClientThread extends Thread {
             while (true) {
                 String message = connection.receive();
                 String command = message.trim();
-                System.out.println("Cliente: " + command);
 
                 boolean keepRunning = session.commandHandler(command);
                 if (keepRunning == false) {
