@@ -5,8 +5,10 @@ import java.util.Scanner;
 public class Client {
     public static void main(String[] tokens) {
 
-        int serverPort = 5000;
-        String serverHost = "127.0.0.1";
+        Config config = new Config(".env");
+
+        String serverHost = config.getServerHost();
+        int serverPort = config.getServerPort();
         
         try (Scanner reader = new Scanner(System.in);
              Socket socket = new Socket(serverHost, serverPort);

@@ -13,10 +13,12 @@ public class Session {
     private String user;
     private Path baseDir;
     private Path currDir;
+    private final Path usersRoot;
 
-    public Session(Connection connection, Authenticator authenticator) {
+    public Session(Connection connection, Authenticator authenticator, Path usersRoot) {
         this.connection = connection;
         this.authenticator = authenticator;
+        this.usersRoot = usersRoot;
     }
 
     public boolean commandHandler(String command) throws IOException {
@@ -81,7 +83,7 @@ public class Session {
             return;
         }
 
-        baseDir = Path.of("/tmp", userName);
+        baseDir = usersRoot.resolve(userName);
         Files.createDirectories(baseDir);
 
         this.user = userName;

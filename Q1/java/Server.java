@@ -1,20 +1,22 @@
 import java.io.*;
 import java.net.*;
+import java.nio.file.Path;
 
 public class Server {
 
     public static void main(String[] args) {
-        try {
-            int serverPort = 5000;
-            ServerSocket listenSocket = new ServerSocket(serverPort);
-            Authenticator authenticator = new Authenticator();
+        Config config = new Config(".env");
+        int serverPort = config.getServerPort();
+        Path usersRoot = Path.of(config.getBaseDir()).toAbsolutePath().normalize();
 
+        try (ServerSocket listenSocket = new ServerSocket(serverPort);) {
+            Authenticator authenticator = new Authenticator();
             System.out.println("Servidor aguardando conexão ...");
 
             while (true) {
                 Socket clientSocket = listenSocket.accept();
 
-                ClientThread clientThread = new ClientThread(clientSocket, authenticator);
+                ClientThread clientThread = new ClientThread(clientSocket, authenticator, usersRoot);
                 clientThread.start();
             }
 
@@ -29,9 +31,9 @@ class ClientThread extends Thread {
     private final Connection connection;
     private final Session session;
 
-    public ClientThread(Socket clientSocket, Authenticator authenticator) throws IOException {
+    public ClientThread(Socket clientSocket, Authenticator authenticator, Path usersRoot) throws IOException {
         this.connection = new Connection(clientSocket);
-        this.session = new Session(connection, authenticator);
+        this.session = new Session(connection, authenticator, usersRoot);
     }
 
     @Override

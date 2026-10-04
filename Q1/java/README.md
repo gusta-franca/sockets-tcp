@@ -6,6 +6,11 @@ Servidor e cliente TCP desenvolvidos em Java que permite que múltiplos clientes
 
 - **Java 11 ou superior** (JDK)
 
+## Variável de ambiente
+
+Configure sua variável de ambiente:
+cp .env.example .env
+
 ## Compilação
 
 Dentro da pasta com os arquivos:

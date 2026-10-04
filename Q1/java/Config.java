@@ -1,0 +1,53 @@
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
+
+public class Config {
+
+    private final Properties properties = new Properties();
+    
+    public Config(String fileName) {
+        try (FileReader reader = new FileReader(fileName)) {
+            properties.load(reader);
+        } catch (IOException e) {
+            System.out.println("Arquivo " + fileName + " não encontado. Usando valores padrão.");
+        }
+    }
+
+    public String get(String key, String defaultValue) {
+        String fromEnvironment = System.getenv(key);
+        if (fromEnvironment != null) {
+            return fromEnvironment;
+        }
+
+        String value = properties.getProperty(key, defaultValue);
+        return value.trim();
+    }
+
+    private String[] splitAddress() {
+        String address = get("SERVER_ADDR", "127.0.0.1:5000");
+        String[] parts = address.split(":");
+
+        if (parts.length != 2) {
+            throw new IllegalArgumentException(
+                "SERVER_ADDR inválido. Use o formato host:porta (ex.: 127.0.0.1:5000)");
+        }
+
+        return parts;
+    }
+
+    public String getServerHost() {
+        String[] parts = splitAddress();
+        return parts[0];
+    }
+
+    public int getServerPort() {
+        String[] parts = splitAddress();
+        return Integer.parseInt(parts[1]);
+    }
+
+    public String getBaseDir() {
+        return get("BASE_DIR", "./users");
+    }
+
+}
