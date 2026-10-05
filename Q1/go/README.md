@@ -44,6 +44,13 @@ make run-client
 | `GETDIRS` | Lista os diretórios |
 | `EXIT` | Encerra a conexão |
 
+### Usuários cadastrados
+
+| Usuário | Senha |
+|---|---|
+| `carol` | `carol123` |
+| `duda` | `duda123` |
+
 ## Protocolo
 
 A comunicação utiliza **TCP** e **UTF-8**.
