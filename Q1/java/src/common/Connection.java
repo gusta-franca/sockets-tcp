@@ -1,4 +1,11 @@
-package src.common;
+/*
+    Última atualização: 04/10/2026
+    Aluna: Maria Eduarda Bambini
+    Arquivo compartilhado (cliente e servidor) responsável por enviar e receber mensagens pelo socket.
+*/
+
+package common;
+ 
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;

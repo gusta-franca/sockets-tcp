@@ -1,10 +1,22 @@
-package src.common.server;
+/*
+    Última atualização: 04/10/2026
+    Aluna: Maria Eduarda Bambini
+    Arquivo do servidor responsável por aceitar as conexões e criar uma thread para cada cliente.
+*/
+
+package server;
+ 
+import common.Config;
+import common.Connection;
+ 
 import java.io.*;
 import java.net.*;
 import java.nio.file.Path;
-import src.common.Config;
-import src.common.Connection;
 
+/**
+ * Server: escuta na porta configurada no .env e, a cada cliente que conecta,
+ * cria uma ClientThread para atendê-lo sem bloquear os demais.
+ */
 public class Server {
 
     public static void main(String[] args) {
@@ -29,6 +41,11 @@ public class Server {
     }
 }
 
+/**
+ * ClientThread: thread responsável pela comunicação com um cliente. Recebe as
+ * mensagens, entrega cada uma para a Session e encerra quando chega o EXIT
+ * ou quando o cliente desconecta.
+ */
 class ClientThread extends Thread {
 
     private final Connection connection;

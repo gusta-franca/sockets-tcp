@@ -1,8 +1,19 @@
-package src.common;
+/*
+    Última atualização: 04/10/2026
+    Aluna: Maria Eduarda Bambini
+    Arquivo compartilhado (cliente e servidor) responsável por ler as configurações do arquivo .env.
+*/
+
+package common;
+ 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Config: lê as configurações (SERVER_ADDR e BASE_DIR) do arquivo .env.
+ * Ordem de busca: variável de ambiente -> arquivo .env -> valor padrão.
+ */
 public class Config {
 
     private final Properties properties = new Properties();

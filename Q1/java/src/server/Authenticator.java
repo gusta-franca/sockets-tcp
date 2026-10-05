@@ -1,7 +1,18 @@
-package src.common.server;
+/*
+    Última atualização: 04/10/2026
+    Aluna: Maria Eduarda Bambini
+    Arquivo do servidor responsável por conferir o usuário e a senha (hash) informados no CONNECT.
+*/
+
+package server;
+ 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Authenticator: guarda os usuários cadastrados (nome -> hash SHA-512 da senha)
+ * e confere se o hash recebido do cliente bate com o cadastrado.
+ */
 public class Authenticator {
         private final Map<String, String> users = new HashMap<>();
 

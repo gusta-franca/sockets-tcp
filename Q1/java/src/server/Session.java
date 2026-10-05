@@ -1,4 +1,13 @@
-package src.common.server;
+/*
+    Última atualização: 04/10/2026
+    Aluna: Maria Eduarda Bambini
+    Arquivo do servidor responsável por processar as mensagens dos clientes.
+*/
+
+package server;
+ 
+import common.Connection;
+ 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -6,8 +15,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import src.common.Connection;
-
+/**
+ * Session: representa um cliente conectado. Guarda o estado dele (se está autenticado
+ * e em qual diretório está) e executa cada comando recebido. Cada comando gera
+ * exatamente uma resposta, exceto o EXIT.
+ */
 public class Session {
     private final Connection connection;
     private final Authenticator authenticator;
