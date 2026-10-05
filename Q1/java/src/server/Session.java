@@ -7,7 +7,6 @@
 package server;
  
 import common.Connection;
- 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -75,25 +74,23 @@ public class Session {
     }
 
     private void connect(String args) throws IOException {
-        String[] values = args.split(" ");
+        int commaIndex = args.indexOf(",");
 
-        if (values.length != 2) {
+        if (commaIndex == -1) {
             connection.send("ERROR");
             return;
         }
 
-        String userNameWithComma = values[0];
-        String passwordHash = values[1];
+        String userName = args.substring(0, commaIndex).trim();
+        String passwordHash = args.substring(commaIndex + 1).trim();
 
-        if (userNameWithComma.endsWith(",") == false) {
+        if (userName.isEmpty() || passwordHash.isEmpty()) {
             connection.send("ERROR");
             return;
         }
 
-        int userLastIndex = userNameWithComma.length() - 1;
-        String userName = userNameWithComma.substring(0, userLastIndex);
-
-        if (!authenticator.authenticate(userName, passwordHash)) {
+        boolean validLogin = authenticator.authenticate(userName, passwordHash);
+        if (validLogin == false) {
             connection.send("ERROR");
             return;
         }
