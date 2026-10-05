@@ -18,6 +18,7 @@ Mensagens em `String UTF`.
 | `EXIT` | Encerra conexão |
 
 Respostas: `SUCCESS` ou `ERROR`.
+
 ## Questão 2 
 
 Esta aplicação implementa um servidor de arquivos remoto multiusuário utilizando comunicação TCP sob um protocolo binário customizado.
@@ -52,43 +53,3 @@ Esta aplicação implementa um servidor de arquivos remoto multiusuário utiliza
 - **Endianness**: Todos os inteiros de múltiplos bytes devem ser serializados/deserializados em **Big Endian**.
 - **Streaming**: Envio e recebimento de dados realizados byte a byte.
 - **Logging**: O servidor registra eventos e erros usando bibliotecas nativas/padrão da linguagem.
-
-## Estrutura
-
-    sockets-tcp/
-    ├── README.md
-    ├── .gitignore
-    │
-    ├── Q1/                            # Questão 1: Protocolo de Texto (UTF-8)
-    │   ├── c#/
-    │   │   ├── README.md
-    │   │   └── cmd/
-    │   │       ├── client/            # Código do cliente em C#
-    │   │       └── server/            # Código do servidor em C#
-    │   ├── go/
-    │   │   ├── README.md
-    │   │   └── cmd/
-    │   │       ├── client/            # Código do cliente em Go
-    │   │       └── server/            # Código do servidor em Go
-    │   └── java/
-    │       ├── README.md
-    │       └── cmd/
-    │           ├── client/            # Código do cliente em Java
-    │           └── server/            # Código do servidor em Java
-    │
-    └── Q2/                            # Questão 2: Protocolo Binário TCP
-        ├── c#/
-        │   ├── README.md
-        │   └── cmd/
-        │       ├── client/            # Código do cliente em C#
-        │       └── server/            # Código do servidor em C#
-        ├── go/
-        │   ├── README.md
-        │   └── cmd/
-        │       ├── client/            # Código do cliente em Go
-        │       └── server/            # Código do servidor em Go
-        └── java/
-            ├── README.md
-            └── cmd/
-                ├── client/            # Código do cliente em Java
-                └── server/            # Código do servidor em Java
