@@ -57,11 +57,11 @@ SERVER_ADDR=192.168.0.10:5000
 
 ## Comandos
 
-Ao digitar um comando, o cliente pede o nome do arquivo (exceto em `GETFILESLIST`).
+O nome do arquivo é digitado na mesma linha do comando, no formato `COMANDO <arquivo>` (ex.: `ADDFILE ./docs/relatorio.pdf`). O `GETFILESLIST` é digitado sozinho.
 
 | Comando | Descrição | Resultado |
 |---|---|---|
-| `ADDFILE` | Envia um arquivo ao servidor. Informe o caminho do arquivo local (ex.: `./docs/relatorio.pdf`); só o nome é enviado | `Arquivo enviado com sucesso!` ou erro |
+| `ADDFILE` | Envia um arquivo ao servidor. | `Arquivo enviado com sucesso!` ou erro |
 | `DELETE` | Remove um arquivo do servidor | `Arquivo deletado com sucesso!` ou erro |
 | `GETFILESLIST` | Lista os arquivos do servidor | quantidade, depois um nome por linha |
 | `GETFILE` | Baixa um arquivo do servidor para `DOWNLOAD_DIR` | `Arquivo ... baixado com sucesso!` ou erro |
