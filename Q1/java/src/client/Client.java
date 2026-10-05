@@ -1,12 +1,29 @@
+/*
+    Última atualização: 04/10/2026
+    Aluna: Maria Eduarda Bambini
+    Arquivo do cliente responsável por ler os comandos do usuário, enviá-los ao servidor e exibir as respostas.
+*/
+
+package client;
+ 
+import common.Config;
+import common.Connection;
+ 
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
+/**
+ * Client: cliente interativo. Lê um comando por vez do teclado, envia ao servidor
+ * e mostra a resposta. No CONNECT, troca a senha digitada pelo seu hash SHA-512.
+ */
 public class Client {
     public static void main(String[] tokens) {
 
-        int serverPort = 5000;
-        String serverHost = "127.0.0.1";
+        Config config = new Config(".env");
+
+        String serverHost = config.getServerHost();
+        int serverPort = config.getServerPort();
         
         try (Scanner reader = new Scanner(System.in);
              Socket socket = new Socket(serverHost, serverPort);

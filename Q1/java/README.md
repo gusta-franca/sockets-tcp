@@ -6,44 +6,42 @@ Servidor e cliente TCP desenvolvidos em Java que permite que múltiplos clientes
 
 - **Java 11 ou superior** (JDK)
 
+## Variável de ambiente
+
+Configure sua variável de ambiente:
+cp .env.example .env
+
 ## Compilação
-
-Dentro da pasta com os arquivos:
-
+ 
+Na raiz do projeto:
+ 
 ```bash
-javac *.java
+javac -d out src/common/*.java src/server/*.java src/client/*.java
 ```
-
-Isso gera os arquivos `.class` na mesma pasta.
-
+ 
+Os arquivos compilados vão para a pasta `out`, separados por pacote (`common`, `server` e `client`).
+ 
 ## Execução
-
+ 
 **1. Em um terminal, inicie o servidor:**
-
+ 
 ```bash
-java Server
+java -cp out server.Server
 ```
-
-Ele fica escutando na porta **5000** e exibe `Servidor aguardando conexão ...`.
-
+ 
 **2. Em outro terminal, inicie o cliente:**
-
+ 
 ```bash
-java Client
+java -cp out client.Client
 ```
-
-Para testar vários clientes ao mesmo tempo, abra mais terminais e rode `java Client` em cada um.
-
+ 
 ### Conectando de outra máquina
-
-No `Client.java`, altere o endereço do servidor:
-
-```java
-String serverHost = "127.0.0.1";   // troque pelo IP da máquina do servidor
-int serverPort = 5000;
+ 
+No `.env` da máquina do **cliente**, troque o endereço pelo IP da máquina do servidor:
+ 
+```dotenv
+SERVER_ADDR=127.0.0.1:5000
 ```
-
-Depois recompile (`javac *.java`). O servidor e o cliente precisam usar a mesma porta.
 
 ## Comandos
 
@@ -58,8 +56,6 @@ Depois recompile (`javac *.java`). O servidor e o cliente precisam usar a mesma 
 
 Antes do `CONNECT`, qualquer comando (exceto `EXIT`) retorna `ERROR`.
 
-A senha é digitada normalmente no cliente. O **cliente converte para SHA-512** antes de enviar, e o servidor compara apenas os hashes.
-
 ### Usuários cadastrados
 
 | Usuário | Senha |
@@ -69,11 +65,3 @@ A senha é digitada normalmente no cliente. O **cliente converte para SHA-512** 
 | `Maria` | `admin` |
 
 Os nomes diferenciam maiúsculas de minúsculas (case sensitive).
-
-### Uso
-
-Antes, crie uma pasta de teste (o servidor cria `/tmp/<usuario>` no primeiro login):
-
-```bash
-mkdir -p /tmp/Carol/docs
-touch /tmp/Carol/a.txt /tmp/Carol/b.txt
