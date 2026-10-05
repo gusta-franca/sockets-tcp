@@ -36,12 +36,12 @@ public class Config {
     }
 
     private String[] splitAddress() {
-        String address = get("SERVER_ADDR", "127.0.0.1:9090");
+        String address = get("SERVER_ADDR", "127.0.0.1:5000");
         String[] parts = address.split(":");
 
         if (parts.length != 2) {
             throw new IllegalArgumentException(
-                "SERVER_ADDR inválido. Use o formato host:porta (ex.: 127.0.0.1:9090)");
+                "SERVER_ADDR inválido. Use o formato host:porta (ex.: 127.0.0.1:5000)");
         }
 
         return parts;

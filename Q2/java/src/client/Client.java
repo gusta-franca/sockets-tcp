@@ -72,17 +72,29 @@ public class Client {
                     break;
                 }
 
-                Protocol.Command command = parseCommand(buffer);
+                String[] parts = buffer.split("\\s+", 2);
+                String argument = parts.length > 1 ? parts[1].trim() : "";
+
+                Protocol.Command command = parseCommand(parts[0]);
                 if (command == null) {
                     System.out.println("Comando inválido!");
                     continue;
                 }
 
+                if (!hasValidArguments(command, argument)) {
+                    System.out.println(usage(command));
+                    continue;
+                }
+                if (argument.getBytes(StandardCharsets.UTF_8).length > Protocol.MAX_FILENAME_SIZE) {
+                    System.out.println("O nome do arquivo ultrapassa o limite de 255 bytes");
+                    continue;
+                }
+
                 switch (command) {
-                    case ADDFILE -> addFile(connection, readFilename(reader));
-                    case DELETE -> delete(connection, readFilename(reader));
+                    case ADDFILE -> addFile(connection, argument);
+                    case DELETE -> delete(connection, argument);
                     case GETFILESLIST -> getFilesList(connection);
-                    case GETFILE -> getFile(connection, downloadDir, readFilename(reader));
+                    case GETFILE -> getFile(connection, downloadDir, argument);
                 }
             }
         }
@@ -96,17 +108,18 @@ public class Client {
         }
     }
 
-    /** Solicita o nome do arquivo até que tenha de 1 a 255 bytes em UTF-8. */
-    private static String readFilename(Scanner reader) {
-        while (true) {
-            System.out.print("Digite o nome do arquivo: ");
-            String name = reader.nextLine().trim();
-            int size = name.getBytes(StandardCharsets.UTF_8).length;
-            if (size >= 1 && size <= Protocol.MAX_FILENAME_SIZE) {
-                return name;
-            }
-            System.out.println("O nome do arquivo deve ter entre 1 e 255 bytes");
+    /** Confere se o comando recebeu exatamente o argumento que exige: um arquivo, ou nada no GETFILESLIST. */
+    private static boolean hasValidArguments(Protocol.Command command, String argument) {
+        boolean needsFile = command != Protocol.Command.GETFILESLIST;
+        return needsFile == !argument.isEmpty();
+    }
+
+    /** Monta a mensagem com o formato esperado para o comando. */
+    private static String usage(Protocol.Command command) {
+        if (command == Protocol.Command.GETFILESLIST) {
+            return "Utilize o formato 'GETFILESLIST'";
         }
+        return "Utilize o formato '" + command + " <arquivo>'";
     }
 
     /** Envia o arquivo indicado pelo caminho; ao servidor vai apenas o nome do arquivo. */
