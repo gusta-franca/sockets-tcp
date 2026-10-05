@@ -1,6 +1,9 @@
+package src.common.server;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Path;
+import src.common.Config;
+import src.common.Connection;
 
 public class Server {
 

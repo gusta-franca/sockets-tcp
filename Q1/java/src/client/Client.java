@@ -1,6 +1,10 @@
+package client;
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
+
+import src.common.Config;
+import src.common.Connection;
 
 public class Client {
     public static void main(String[] tokens) {

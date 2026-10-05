@@ -1,9 +1,12 @@
+package src.common.server;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import src.common.Connection;
 
 public class Session {
     private final Connection connection;
@@ -93,7 +96,8 @@ public class Session {
     }
 
     private void printWorkingDirectory() throws IOException {
-        String path = currDir.toString();
+        Path relative = baseDir.relativize(currDir);
+        String path = "/" + relative.toString();
         connection.send(path);
     }
 
@@ -105,6 +109,13 @@ public class Session {
         }
 
         Path newCurrDir = currDir.resolve(args); 
+
+        if (args.startsWith("/")) {
+            String withoutSlash = args.substring(1);
+            newCurrDir = baseDir.resolve(withoutSlash).normalize();
+        } else {
+            newCurrDir = currDir.resolve(args).normalize();
+        }
 
         if (newCurrDir.startsWith(baseDir) == false) {
             connection.send("ERROR");
