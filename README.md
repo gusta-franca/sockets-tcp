@@ -26,10 +26,10 @@ Esta aplicação implementa um servidor de arquivos remoto multiusuário utiliza
 ## Especificação do protocolo
 
 ### 1. Comandos suportados
-- `0x01` - **ADDFILE**: Adiciona um arquivo no servidor.
-- `0x02` - **DELETE**: Remove um arquivo do servidor.
+- `0x01` - **ADDFILE <caminho_do_arquivo>**: Adiciona um arquivo no servidor.
+- `0x02` - **DELETE <caminho_do_arquivo>**: Remove um arquivo do servidor.
 - `0x03` - **GETFILESLIST**: Lista os nomes dos arquivos no servidor.
-- `0x04` - **GETFILE**: Realiza o download de um arquivo.
+- `0x04` - **GETFILE <caminho_do_arquivo>**: Realiza o download de um arquivo.
 
 ### 2. Formato da requisição (Cliente -> Servidor)
 - `1 byte`: Message Type (`0x01`)
