@@ -103,7 +103,7 @@ func (c *Client) Run() {
 			usr := strings.TrimSpace(argsTokens[0])
 			pwd := strings.TrimSpace(argsTokens[1])
 
-			cmd = fmt.Sprintf("CONNECT %s,%s", usr, auth.HashSHA512(pwd))
+			cmd = fmt.Sprintf("CONNECT %s, %s", usr, auth.HashSHA512(pwd))
 		} else if command == "CHDIR" {
 			if len(cmdTokens) < 2 {
 				fmt.Println("Usage: CHDIR directory")
