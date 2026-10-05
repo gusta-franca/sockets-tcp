@@ -16,11 +16,10 @@ cp .env.example .env
 
 | Variável | Descrição | Padrão |
 |---|---|---|
-| `SERVER_ADDR` | Endereço do servidor no formato `host:porta` | `127.0.0.1:9090` |
+| `SERVER_ADDR` | Endereço do servidor no formato `host:porta` | `127.0.0.1:5000` |
 | `BASE_DIR` | Pasta onde o servidor guarda os arquivos | `./storage` |
 | `DOWNLOAD_DIR` | Pasta onde o cliente grava os arquivos baixados | `./downloads` |
 
-Uma variável definida no ambiente do sistema tem prioridade sobre o valor do `.env`.
 
 ## Compilação
 
@@ -53,10 +52,8 @@ O servidor escuta na porta de `SERVER_ADDR` em todas as interfaces de rede. O cl
 No `.env` da máquina do **cliente**, troque o endereço pelo IP da máquina do servidor:
 
 ```dotenv
-SERVER_ADDR=192.168.0.10:9090
+SERVER_ADDR=192.168.0.10:5000
 ```
-
-A porta precisa estar liberada no firewall da máquina do servidor.
 
 ## Comandos
 
